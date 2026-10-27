@@ -1,0 +1,7 @@
+# Isolated CPU environment: install torch from the official CPU wheel index first.
+# python -m pip install torch==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
+gliner2[local]==2.1.0
+transformers==5.20.2
+PyMuPDF==1.28.2
+sentencepiece==0.2.1
+numpy>=1.26
