@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -16,12 +17,12 @@ class CacheDefaultsTest(unittest.TestCase):
                         env[key] = ''
                     else:
                         env.pop(key, None)
-                code = ('from scripts.paper_pipeline.local_models import DEFAULT_MODELS; '
+                code = ('import json; from scripts.paper_pipeline.local_models import DEFAULT_MODELS; '
                         'from scripts.paper_pipeline.query_translation import ROOT; '
-                        'print(DEFAULT_MODELS); print(ROOT)')
+                        'print(json.dumps([str(DEFAULT_MODELS), str(ROOT)], ensure_ascii=True))')
                 run = subprocess.run([sys.executable, '-B', '-c', code], env=env,
                                      capture_output=True, text=True, check=True)
-                roots = run.stdout.splitlines()
+                roots = json.loads(run.stdout)
                 self.assertEqual(Path(roots[0]), Path.home() / '.cache' / 'llm-wiki' / 'models')
                 self.assertEqual(Path(roots[1]), Path.home() / '.cache' / 'llm-wiki' / 'query-models')
 
@@ -30,12 +31,12 @@ class CacheDefaultsTest(unittest.TestCase):
             env = os.environ.copy()
             env['LLM_WIKI_MODELS_DIR'] = str(Path(tmp) / 'models')
             env['LLM_WIKI_TRANSLATION_MODEL_DIR'] = str(Path(tmp) / 'translation')
-            code = ('from scripts.paper_pipeline.local_models import DEFAULT_MODELS; '
+            code = ('import json; from scripts.paper_pipeline.local_models import DEFAULT_MODELS; '
                     'from scripts.paper_pipeline.query_translation import ROOT; '
-                    'print(DEFAULT_MODELS); print(ROOT)')
+                    'print(json.dumps([str(DEFAULT_MODELS), str(ROOT)], ensure_ascii=True))')
             run = subprocess.run([sys.executable, '-B', '-c', code], env=env,
                                  capture_output=True, text=True, check=True)
-            roots = run.stdout.splitlines()
+            roots = json.loads(run.stdout)
             self.assertEqual(Path(roots[0]), Path(env['LLM_WIKI_MODELS_DIR']))
             self.assertEqual(Path(roots[1]), Path(env['LLM_WIKI_TRANSLATION_MODEL_DIR']))
 
